@@ -13,7 +13,6 @@ import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("api/v1/users")
@@ -34,8 +33,8 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<User>> findUserById(@PathVariable("id") Long userId) throws UserNotFoundException {
-        Optional<User> user = userService.findUserById(userId);
+    public ResponseEntity<User> findUserById(@PathVariable("id") Long userId) throws UserNotFoundException {
+        User user = userService.findUserById(userId);
         return ResponseEntity.ok(user);
     }
 

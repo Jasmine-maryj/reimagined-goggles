@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -33,12 +32,8 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public Optional<User> findUserById(Long userId) throws UserNotFoundException {
-        Optional<User> user = userRepository.findUserById(userId);
-        if(!user.isPresent()){
-            throw new UserNotFoundException("User Not found");
-        }
-        return user;
+    public User findUserById(Long userId) throws UserNotFoundException {
+        return userRepository.findUserById(userId);
     }
 
     @Override
