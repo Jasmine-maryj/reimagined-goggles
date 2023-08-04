@@ -1,6 +1,7 @@
 package com.dev.springboottesting.controller;
 
 import com.dev.springboottesting.dto.UserDto;
+import com.dev.springboottesting.dto.UserLoginDto;
 import com.dev.springboottesting.entity.User;
 import com.dev.springboottesting.exceptionhandler.UserNotFoundException;
 import com.dev.springboottesting.service.UserService;
@@ -26,6 +27,25 @@ public class UserController {
         userService.addUser(userDto);
         return new ResponseEntity<>("Created new user", HttpStatus.CREATED);
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> loginUser(@RequestBody UserLoginDto userLoginDto){
+        Boolean isLoggedIn = userService.loginUser(userLoginDto);
+        String result = "";
+        if (isLoggedIn){
+            result = "Logged In Successfully";
+        }else{
+            result = "Invalid username or password";
+        }
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @GetMapping("/firstName")
+    public ResponseEntity<User> getUserByFirstName(@RequestParam("firstName") String firstName){
+        User user = userService.getUserByFirstName(firstName);
+        return ResponseEntity.ok(user);
+    }
+
     @GetMapping("/all")
     public ResponseEntity<List<User>> getAllUsers(){
         List<User> userList = userService.getAllUsers();

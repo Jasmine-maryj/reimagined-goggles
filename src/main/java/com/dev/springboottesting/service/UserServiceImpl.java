@@ -1,6 +1,7 @@
 package com.dev.springboottesting.service;
 
 import com.dev.springboottesting.dto.UserDto;
+import com.dev.springboottesting.dto.UserLoginDto;
 import com.dev.springboottesting.entity.User;
 import com.dev.springboottesting.exceptionhandler.UserNotFoundException;
 import com.dev.springboottesting.repository.UserRepository;
@@ -58,5 +59,23 @@ public class UserServiceImpl implements UserService{
         }catch (Exception e){
             throw new UserNotFoundException("User not found");
         }
+    }
+
+    @Override
+    public boolean loginUser(UserLoginDto userLoginDto) {
+        User user = userRepository.findByEmailAndPassword(userLoginDto.getEmail(), userLoginDto.getPassword());
+        if(user != null){
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public User getUserByFirstName(String firstName) {
+        User user = userRepository.findByFirstName(firstName);
+        if(user == null){
+            throw new UserNotFoundException("User not found");
+        }
+        return user;
     }
 }
