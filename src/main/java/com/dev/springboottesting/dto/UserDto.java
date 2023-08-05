@@ -2,12 +2,12 @@ package com.dev.springboottesting.dto;
 
 import com.dev.springboottesting.validate.ValidateEmail;
 import com.dev.springboottesting.validate.ValidatePassword;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotBlank;
 
 @Data
 @AllArgsConstructor(staticName = "build")
