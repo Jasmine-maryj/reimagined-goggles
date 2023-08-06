@@ -5,8 +5,6 @@ import com.dev.springboottesting.entity.User;
 import com.dev.springboottesting.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.JSONValue;
-import org.json.JSONObject;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,10 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -77,14 +73,9 @@ class UserControllerTest {
         assertEquals(content, "Created new user");
     }
 
-    @DisplayName("Test GetAllEmployee Function")
+    @DisplayName("Test Get All Employee")
     @Test
     void whenGetAllEmployee_thenReturnListOfEmployee() throws Exception {
-
-        /*
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(URI+"/all").accept(MediaType.APPLICATION_JSON_VALUE)).andReturn();
-        int status = mvcResult.getResponse().getStatus();
-        assertEquals(200, status); */
 
         List<User> listOfEmployees = new ArrayList<>();
         listOfEmployees.add(User.builder().firstName("abcd").lastName("efgh").email("abcd@efgh.com").build());
@@ -101,8 +92,9 @@ class UserControllerTest {
 
     }
 
+    @DisplayName("Test Find User By Id")
     @Test
-    void findUserById() throws Exception {
+    void whenGivenId_ReturnUser() throws Exception {
         Long id = 13L;
         User expectedUser = User.builder()
                 .id(id)
@@ -114,7 +106,7 @@ class UserControllerTest {
 
         Mockito.when(userService.findUserById(id)).thenReturn(expectedUser);
 
-        ResultActions resultActions = (ResultActions) mockMvc.perform(MockMvcRequestBuilders.get(URI+"/{id}", id));
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get(URI+"/{id}", id));
 
         resultActions.andExpect(status().isOk())
                 .andDo(print())
@@ -131,8 +123,9 @@ class UserControllerTest {
         assertEquals(objectMapper.writeValueAsString(expectedUser), actualResponse); */
     }
 
+    @DisplayName("Test Delete User By Id ")
     @Test
-    void delete() throws Exception {
+    void whenGivenId_deleteUser_returnSuccessMessage() throws Exception {
         Long id = 12L;
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.delete(URI+"/delete/{id}", id)).andReturn();
@@ -150,8 +143,60 @@ class UserControllerTest {
         assertEquals(jsonStr, content);
     }
 
+    @DisplayName("Test Update Employees")
     @Test
-    void update() throws Exception{
-        
+    void whenExistingEmployeeUpdated_StoreAndReturn_UpdatedEmployee() throws Exception{
+
+        Long id = 12L;
+
+        //existing user
+        User user = User.builder()
+                .firstName("abc4")
+                .lastName("efdfg")
+                .email("abc@efg.com")
+                .password("Axasdfgkm.@6")
+                .build();
+
+        UserDto updatedUser = UserDto.builder()
+                .firstName("Iron")
+                .lastName("Man")
+                .email("ironman@gmail.com")
+                .password("Ixasdfgkm.@6")
+                .build();
+
+        User expectedUser = User.builder()
+                .id(id)
+                .firstName("Iron")
+                .lastName("Man")
+                .email("ironman@gmail.com")
+                .password("Ixasdfgkm.@6")
+                .build();
+
+        given(userService.updateUser(updatedUser, id)).willReturn(expectedUser);
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.put(URI+"/update/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(updatedUser)))
+                .andReturn();
+
+        int status = mvcResult.getResponse().getStatus();
+        assertEquals(200, status);   //Test Passed
+
+        String actualUser = mvcResult.getResponse().getContentAsString();
+
+        assertEquals(objectMapper.writeValueAsString(expectedUser), actualUser);
+
+/*
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.put(URI+"/update/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updatedUser)));
+
+        resultActions.andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(jsonPath("$.firstName", is(expectedUser.getFirstName())))
+                .andExpect(jsonPath("$.lastName", is(expectedUser.getLastName())))
+                .andExpect(jsonPath("$.email", is(expectedUser.getEmail())))
+                .andExpect(jsonPath("$.password", is(expectedUser.getPassword()))); */
+
     }
 }
