@@ -8,6 +8,7 @@ import com.dev.springboottesting.exceptionhandler.UserNotFoundException;
 import com.dev.springboottesting.service.UserService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
