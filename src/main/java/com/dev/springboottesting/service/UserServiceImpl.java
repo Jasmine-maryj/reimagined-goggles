@@ -17,7 +17,7 @@ public class UserServiceImpl implements UserService{
     private UserRepository userRepository;
 
     @Override
-    public void addUser(UserDto userDto) {
+    public User registerUser(UserDto userDto) {
         User user1 = userRepository.findUserByEmail(userDto.getEmail());
         if(user1 != null){
             throw new UserNotFoundException("User with email already exists.");
@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService{
         user.setEmail(userDto.getEmail());
         user.setPassword(userDto.getPassword());
 
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
     @Override

@@ -8,7 +8,7 @@ import com.dev.springboottesting.exceptionhandler.UserNotFoundException;
 import java.util.List;
 
 public interface UserService {
-    void addUser(UserDto userDto);
+    User registerUser(UserDto userDto);
 
     List<User> getAllUsers();
 
