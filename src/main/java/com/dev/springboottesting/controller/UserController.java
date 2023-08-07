@@ -5,6 +5,7 @@ import com.dev.springboottesting.dto.UserLoginDto;
 import com.dev.springboottesting.entity.User;
 import com.dev.springboottesting.exceptionhandler.UserNotFoundException;
 import com.dev.springboottesting.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,7 +31,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody UserLoginDto userLoginDto){
+    public ResponseEntity<String> loginUser(HttpServletRequest request, @RequestBody UserLoginDto userLoginDto){
+        int userId = (int) request.getAttribute("id");
         Boolean isLoggedIn = userService.loginUser(userLoginDto);
         String result = "";
         if (isLoggedIn){
