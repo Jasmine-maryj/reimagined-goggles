@@ -33,7 +33,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody UserLoginDto userLoginDto){
+    public ResponseEntity<String> loginUser(HttpServletRequest request, @RequestBody UserLoginDto userLoginDto){
+        int userId = (int) request.getAttribute("id");
         Boolean isLoggedIn = userService.loginUser(userLoginDto);
         String result = "";
         if (isLoggedIn){
