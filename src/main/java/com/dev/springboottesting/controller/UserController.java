@@ -1,18 +1,20 @@
 package com.dev.springboottesting.controller;
 
+import com.dev.springboottesting.config.Constants;
 import com.dev.springboottesting.dto.UserDto;
 import com.dev.springboottesting.dto.UserLoginDto;
 import com.dev.springboottesting.entity.User;
 import com.dev.springboottesting.exceptionhandler.UserNotFoundException;
 import com.dev.springboottesting.service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-//import javax.validation.Valid;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,10 +26,10 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/add")
-    public ResponseEntity<String> addUser(@RequestBody @Valid UserDto userDto){
-        userService.addUser(userDto);
-        return new ResponseEntity<>("Created new user", HttpStatus.CREATED);
+    @PostMapping("/register")
+    public ResponseEntity<Map<String, String>> registerUser(@RequestBody @Valid UserDto userDto){
+        User user = userService.registerUser(userDto);
+        return new ResponseEntity<>(generateToken(user), HttpStatus.OK);
     }
 
     @PostMapping("/login")
@@ -73,6 +75,25 @@ public class UserController {
         Map<String, String> map = new HashMap<>();
         map.put("message", "success");
         return ResponseEntity.ok(map);
+    }
+
+    private Map<String, String> generateToken(User user){
+        try {
+            long time = System.currentTimeMillis();
+            String token = Jwts.builder().signWith(SignatureAlgorithm.HS256, Constants.API_SECRET_KEY)
+                    .setIssuedAt(new Date())
+                    .setExpiration(new Date(time + Constants.TOKEN_EXPIRATION_TIME))
+                    .claim("id", user.getId())
+                    .claim("firstName", user.getFirstName())
+                    .claim("lastName", user.getLastName())
+                    .compact();
+
+            Map<String, String> map = new HashMap<>();
+            map.put("token", token);
+            return map;
+        }catch (Exception e){
+            throw new UserNotFoundException("Bad request");
+        }
     }
 
 }
