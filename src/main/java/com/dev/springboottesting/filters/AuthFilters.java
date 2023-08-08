@@ -1,6 +1,6 @@
 package com.dev.springboottesting.filters;
 
-import com.dev.springboottesting.config.Constants;
+import com.dev.springboottesting.entity.Token;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.*;
@@ -25,7 +25,7 @@ public class AuthFilters extends GenericFilterBean {
             if(authHeaderArr.length > 1 && authHeaderArr[1] != null){  //authHeader[1] contains token
                 String token = authHeaderArr[1];
                 try{
-                    Claims claims = Jwts.parser().setSigningKey(Constants.API_SECRET_KEY)
+                    Claims claims = Jwts.parser().setSigningKey(Token.API_SECRET_KEY)
                             .parseClaimsJws(token).getBody();
 
                     httpServletRequest.setAttribute("id", Integer.parseInt(claims.get("id").toString()));

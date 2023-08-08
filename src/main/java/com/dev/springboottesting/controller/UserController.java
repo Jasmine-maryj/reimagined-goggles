@@ -1,21 +1,19 @@
 package com.dev.springboottesting.controller;
 
-import com.dev.springboottesting.config.Constants;
 import com.dev.springboottesting.dto.UserDto;
 import com.dev.springboottesting.dto.UserLoginDto;
 import com.dev.springboottesting.entity.User;
+import com.dev.springboottesting.events.UserRegisterEvent;
 import com.dev.springboottesting.exceptionhandler.UserNotFoundException;
 import com.dev.springboottesting.service.UserService;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,10 +25,24 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
+
     @PostMapping("/register")
-    public ResponseEntity<Map<String, String>> registerUser(@RequestBody @Valid UserDto userDto){
+    public ResponseEntity<Map<String, String>> registerUser(@RequestBody @Valid UserDto userDto, HttpServletRequest request){
         User user = userService.registerUser(userDto);
-        return new ResponseEntity<>(generateToken(user), HttpStatus.OK);
+        applicationEventPublisher.publishEvent(new UserRegisterEvent(user, applicationUrl(request)));
+        Map<String, String> map = new HashMap<>();
+        map.put("message", "Registered Successfully, Verification link sent, Verify your email address to login");
+        return new ResponseEntity<>(map, HttpStatus.CREATED);
+    }
+
+    private String applicationUrl(HttpServletRequest request) {
+        return "http://"
+                + request.getServerName()
+                + ":"
+                + request.getServletPath()
+                + request.getContextPath();
     }
 
     @PostMapping("/login")
@@ -78,23 +90,6 @@ public class UserController {
         return ResponseEntity.ok(map);
     }
 
-    private Map<String, String> generateToken(User user){
-        try {
-            long time = System.currentTimeMillis();
-            String token = Jwts.builder().signWith(SignatureAlgorithm.HS256, Constants.API_SECRET_KEY)
-                    .setIssuedAt(new Date())
-                    .setExpiration(new Date(time + Constants.TOKEN_EXPIRATION_TIME))
-                    .claim("id", user.getId())
-                    .claim("firstName", user.getFirstName())
-                    .claim("lastName", user.getLastName())
-                    .compact();
 
-            Map<String, String> map = new HashMap<>();
-            map.put("token", token);
-            return map;
-        }catch (Exception e){
-            throw new UserNotFoundException("Bad request");
-        }
-    }
 
 }

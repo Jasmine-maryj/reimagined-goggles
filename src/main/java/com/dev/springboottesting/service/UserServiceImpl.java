@@ -1,11 +1,14 @@
 package com.dev.springboottesting.service;
 
+import com.dev.springboottesting.entity.Token;
 import com.dev.springboottesting.dto.UserDto;
 import com.dev.springboottesting.dto.UserLoginDto;
 import com.dev.springboottesting.entity.User;
 import com.dev.springboottesting.exceptionhandler.UserNotFoundException;
+import com.dev.springboottesting.repository.TokenRepository;
 import com.dev.springboottesting.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +18,12 @@ public class UserServiceImpl implements UserService{
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private TokenRepository tokenRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public User registerUser(UserDto userDto) {
@@ -26,7 +35,7 @@ public class UserServiceImpl implements UserService{
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
         user.setEmail(userDto.getEmail());
-        user.setPassword(userDto.getPassword());
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
         return userRepository.save(user);
     }
@@ -50,7 +59,7 @@ public class UserServiceImpl implements UserService{
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
         user.setEmail(userDto.getEmail());
-        user.setPassword(userDto.getPassword());
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
         userRepository.save(user);
         return user;
@@ -67,7 +76,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public boolean loginUser(UserLoginDto userLoginDto) {
-        User user = userRepository.findByEmailAndPassword(userLoginDto.getEmail(), userLoginDto.getPassword());
+        User user = userRepository.findByEmailAndPassword(userLoginDto.getEmail(), passwordEncoder.encode(userLoginDto.getPassword()));
         if(user != null){
             return true;
         }
@@ -81,5 +90,11 @@ public class UserServiceImpl implements UserService{
             throw new UserNotFoundException("User not found");
         }
         return user;
+    }
+
+    @Override
+    public void saveVerificationToken(User user, String token) {
+        Token verificationToken = new Token(user, token);
+        tokenRepository.save(verificationToken);
     }
 }

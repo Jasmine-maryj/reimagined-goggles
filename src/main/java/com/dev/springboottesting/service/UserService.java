@@ -21,4 +21,6 @@ public interface UserService {
     boolean loginUser(UserLoginDto userLoginDto);
 
     User getUserByFirstName(String firstName);
+
+    void saveVerificationToken(User user, String token);
 }
