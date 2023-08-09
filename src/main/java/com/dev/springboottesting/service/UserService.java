@@ -23,4 +23,6 @@ public interface UserService {
     User getUserByFirstName(String firstName);
 
     void saveVerificationToken(User user, String token);
+
+    String validateUserEmail(String token);
 }

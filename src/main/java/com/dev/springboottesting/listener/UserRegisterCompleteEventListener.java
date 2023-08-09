@@ -19,7 +19,9 @@ public class UserRegisterCompleteEventListener implements ApplicationListener<Us
     @Override
     public void onApplicationEvent(UserRegisterEvent event) {
         User user = event.getUser();
-        String token = String.valueOf(new Token(user));
+        Token verificationToken = new Token(user);
+//        verificationToken.getToken();
+        String token = verificationToken.getToken();
         log.info(token);
         userService.saveVerificationToken(user, token);
 

@@ -41,8 +41,20 @@ public class UserController {
         return "http://"
                 + request.getServerName()
                 + ":"
-                + request.getServletPath()
+                + request.getServerPort()
                 + request.getContextPath();
+    }
+
+    @GetMapping("/verificationToken")
+    public ResponseEntity<Map<String, String>> validateUserEmail(@RequestParam("token") String token){
+        String result = userService.validateUserEmail(token);
+        Map<String, String> map = new HashMap<>();
+        if(result.equalsIgnoreCase("valid")){
+            map.put("message", result);
+        }else {
+            map.put("message", "Bad Request");
+        }
+        return ResponseEntity.ok(map);
     }
 
     @PostMapping("/login")

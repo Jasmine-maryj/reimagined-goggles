@@ -16,13 +16,15 @@ import java.util.Date;
 public class Token {
 
     public static final String API_SECRET_KEY = "usertokenkey";
+    public static final int TOKEN_EXPIRATION_TIME = 10;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  Long id;
 
     private String token;
-    public static final int TOKEN_EXPIRATION_TIME = 10;
+
+    private Date expirationTime;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id",
@@ -34,12 +36,14 @@ public class Token {
         super();
         this.user = user;
         this.token = generateToken(user);
+        this.expirationTime = calculateExpirationTime(TOKEN_EXPIRATION_TIME);
     }
 
     public Token(User user){
         super();
         this.user = user;
         this.token = generateToken(user);
+        this.expirationTime = calculateExpirationTime(TOKEN_EXPIRATION_TIME);
     }
 
     private String generateToken(User user){
