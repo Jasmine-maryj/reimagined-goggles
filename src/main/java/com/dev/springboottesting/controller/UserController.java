@@ -2,12 +2,14 @@ package com.dev.springboottesting.controller;
 
 import com.dev.springboottesting.dto.UserDto;
 import com.dev.springboottesting.dto.UserLoginDto;
+import com.dev.springboottesting.entity.Token;
 import com.dev.springboottesting.entity.User;
 import com.dev.springboottesting.events.UserRegisterEvent;
 import com.dev.springboottesting.exceptionhandler.UserNotFoundException;
 import com.dev.springboottesting.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("api/v1/users")
+@Slf4j
 public class UserController {
 
     @Autowired
@@ -37,13 +40,6 @@ public class UserController {
         return new ResponseEntity<>(map, HttpStatus.CREATED);
     }
 
-    private String applicationUrl(HttpServletRequest request) {
-        return "http://"
-                + request.getServerName()
-                + ":"
-                + request.getServerPort()
-                + request.getContextPath();
-    }
 
     @GetMapping("/verificationToken")
     public ResponseEntity<Map<String, String>> validateUserEmail(@RequestParam("token") String token){
@@ -56,6 +52,14 @@ public class UserController {
         }
         return ResponseEntity.ok(map);
     }
+
+    @GetMapping("/resendVerification")
+    public void resendVerificationToken(@RequestParam("token") String oldToken, HttpServletRequest request){
+        Token token = userService.findByToken(oldToken);
+        sendVerificationTokenLinkToEmail(token, applicationUrl(request));
+    }
+
+
 
     @PostMapping("/login")
     public ResponseEntity<String> loginUser(HttpServletRequest request, @RequestBody UserLoginDto userLoginDto){
@@ -100,6 +104,20 @@ public class UserController {
         Map<String, String> map = new HashMap<>();
         map.put("message", "success");
         return ResponseEntity.ok(map);
+    }
+
+
+    private String applicationUrl(HttpServletRequest request) {
+        return "http://"
+                + request.getServerName()
+                + ":"
+                + request.getServerPort()
+                + request.getContextPath();
+    }
+
+    private void sendVerificationTokenLinkToEmail(Token token, String applicationUrl) {
+        String url = applicationUrl + "/verificationToken?token="+token;
+        log.info("Click below link to verify your email address:" + url);
     }
 
 

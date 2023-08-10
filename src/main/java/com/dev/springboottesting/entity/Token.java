@@ -6,6 +6,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -17,6 +19,9 @@ public class Token {
 
     public static final String API_SECRET_KEY = "usertokenkey";
     public static final int TOKEN_EXPIRATION_TIME = 10;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

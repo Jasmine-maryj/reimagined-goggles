@@ -118,4 +118,13 @@ public class UserServiceImpl implements UserService{
         userRepository.save(user);
         return "Valid";
     }
+
+    @Override
+    public Token findByToken(String oldToken) {
+        Token token = tokenRepository.findByToken(oldToken);
+        Token newToken = new Token();
+        token.setToken(newToken.getToken());
+        tokenRepository.save(token);
+        return token;
+    }
 }

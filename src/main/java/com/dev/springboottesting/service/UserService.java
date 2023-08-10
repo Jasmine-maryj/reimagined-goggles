@@ -2,6 +2,7 @@ package com.dev.springboottesting.service;
 
 import com.dev.springboottesting.dto.UserDto;
 import com.dev.springboottesting.dto.UserLoginDto;
+import com.dev.springboottesting.entity.Token;
 import com.dev.springboottesting.entity.User;
 import com.dev.springboottesting.exceptionhandler.UserNotFoundException;
 
@@ -25,4 +26,6 @@ public interface UserService {
     void saveVerificationToken(User user, String token);
 
     String validateUserEmail(String token);
+
+    Token findByToken(String oldToken);
 }
