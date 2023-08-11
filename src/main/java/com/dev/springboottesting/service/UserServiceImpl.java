@@ -1,5 +1,6 @@
 package com.dev.springboottesting.service;
 
+import com.dev.springboottesting.dto.PasswordResetDTO;
 import com.dev.springboottesting.entity.Token;
 import com.dev.springboottesting.dto.UserDto;
 import com.dev.springboottesting.dto.UserLoginDto;
@@ -126,5 +127,16 @@ public class UserServiceImpl implements UserService{
         token.setToken(newToken.getToken());
         tokenRepository.save(token);
         return token;
+    }
+
+    @Override
+    public String resetPassword(PasswordResetDTO passwordResetDTO) {
+        User user = userRepository.findUserByEmail(passwordResetDTO.getEmail());
+        if(user == null){
+            throw new UserNotFoundException("User not found");
+        }
+        user.setPassword(passwordEncoder.encode(passwordResetDTO.getPassword()));
+        userRepository.save(user);
+        return "success";
     }
 }

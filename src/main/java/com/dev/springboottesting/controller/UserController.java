@@ -1,5 +1,6 @@
 package com.dev.springboottesting.controller;
 
+import com.dev.springboottesting.dto.PasswordResetDTO;
 import com.dev.springboottesting.dto.UserDto;
 import com.dev.springboottesting.dto.UserLoginDto;
 import com.dev.springboottesting.entity.Token;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -53,17 +55,30 @@ public class UserController {
         return ResponseEntity.ok(map);
     }
 
+    /**
+     * /
+     * @param oldToken
+     * @param request
+     * its working
+     */
     @GetMapping("/resendVerification")
     public void resendVerificationToken(@RequestParam("token") String oldToken, HttpServletRequest request){
         Token token = userService.findByToken(oldToken);
         sendVerificationTokenLinkToEmail(token, applicationUrl(request));
     }
 
-
+    @PostMapping("/login/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(@RequestBody @Valid PasswordResetDTO passwordResetDTO){
+        String result = userService.resetPassword(passwordResetDTO);
+        Map<String, String> map = new HashMap<>();
+        if(result.equalsIgnoreCase("success")){
+            map.put("message", "Password changed successfully!");
+        }
+        return ResponseEntity.ok(map);
+    }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(HttpServletRequest request, @RequestBody UserLoginDto userLoginDto){
-        int userId = (int) request.getAttribute("id");
+    public ResponseEntity<String> loginUser(@RequestBody UserLoginDto userLoginDto){
         Boolean isLoggedIn = userService.loginUser(userLoginDto);
         String result = "";
         if (isLoggedIn){

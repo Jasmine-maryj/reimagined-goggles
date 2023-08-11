@@ -1,5 +1,6 @@
 package com.dev.springboottesting.service;
 
+import com.dev.springboottesting.dto.PasswordResetDTO;
 import com.dev.springboottesting.dto.UserDto;
 import com.dev.springboottesting.dto.UserLoginDto;
 import com.dev.springboottesting.entity.Token;
@@ -28,4 +29,6 @@ public interface UserService {
     String validateUserEmail(String token);
 
     Token findByToken(String oldToken);
+
+    String resetPassword(PasswordResetDTO passwordResetDTO);
 }

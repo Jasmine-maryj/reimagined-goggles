@@ -20,15 +20,15 @@ public class Token {
     public static final String API_SECRET_KEY = "usertokenkey";
     public static final int TOKEN_EXPIRATION_TIME = 10;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column
     private  Long id;
 
+    @Column
     private String token;
 
+    @Column
     private Date expirationTime;
 
     @OneToOne(fetch = FetchType.EAGER)

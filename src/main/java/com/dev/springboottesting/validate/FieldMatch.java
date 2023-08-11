@@ -18,23 +18,14 @@ import java.lang.annotation.*;
  *   @FieldMatch(first = "email", second = "confirmEmail", message = "The email fields must match")})
  */
 
-@Target({ElementType.FIELD, ElementType.PARAMETER})
+@Target({ElementType.TYPE})
 @Documented
 @Retention(value = RetentionPolicy.RUNTIME)
 @Validated(value = FieldMatchValidator.class)
 public @interface FieldMatch {
-    String message() default "{constraints.fieldmatch}";
+    String message();
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
-    String first();
-    String second();
-
-    @Retention(value = RetentionPolicy.RUNTIME)
-    @Documented
-    @Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE})
-    @interface List{
-        FieldMatch[] value();
-    }
 }
