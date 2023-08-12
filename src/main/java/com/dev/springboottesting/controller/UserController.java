@@ -7,6 +7,7 @@ import com.dev.springboottesting.entity.Token;
 import com.dev.springboottesting.entity.User;
 import com.dev.springboottesting.events.UserRegisterEvent;
 import com.dev.springboottesting.exceptionhandler.UserNotFoundException;
+import com.dev.springboottesting.mappers.Converter;
 import com.dev.springboottesting.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -15,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -29,6 +29,8 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    
+    private Converter converter;
 
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
@@ -90,27 +92,31 @@ public class UserController {
     }
 
     @GetMapping("/firstName")
-    public ResponseEntity<User> getUserByFirstName(@RequestParam("firstName") String firstName){
+    public ResponseEntity<UserDto> getUserByFirstName(@RequestParam("firstName") String firstName){
         User user = userService.getUserByFirstName(firstName);
-        return ResponseEntity.ok(user);
+        UserDto userDto = converter.asDTO(user);
+        return ResponseEntity.ok(userDto);
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<User>> getAllUsers(){
+    public ResponseEntity<List<UserDto>> getAllUsers(){
         List<User> userList = userService.getAllUsers();
-        return new ResponseEntity<>(userList, HttpStatus.OK);
+        List<UserDto> userDtoList = converter.asDTOList(userList);
+        return new ResponseEntity<>(userDtoList, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> findUserById(@PathVariable("id") Long userId) throws UserNotFoundException {
+    public ResponseEntity<UserDto> findUserById(@PathVariable("id") Long userId) throws UserNotFoundException {
         User user = userService.findUserById(userId);
-        return ResponseEntity.ok(user);
+        UserDto userDto = converter.asDTO(user);
+        return ResponseEntity.ok(userDto);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<User> updateUser(@RequestBody UserDto userDto, @PathVariable("id") Long id) throws UserNotFoundException {
-        User user = userService.updateUser(userDto, id);
-        return ResponseEntity.ok(user);
+    public ResponseEntity<UserDto> updateUser(@RequestBody UserDto userDtoRequest, @PathVariable("id") Long id) throws UserNotFoundException {
+        User user = userService.updateUser(userDtoRequest, id);
+        UserDto userDtoResponse = converter.asDTO(user);
+        return ResponseEntity.ok(userDtoResponse);
     }
 
     @DeleteMapping("/delete/{id}")
