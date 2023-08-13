@@ -14,7 +14,7 @@ public class FieldMatchValidator implements ConstraintValidator<FieldMatch, Obje
     @Override
     public boolean isValid(Object user, ConstraintValidatorContext constraintValidatorContext) {
         PasswordResetDTO uPD = (PasswordResetDTO) user;
-        return uPD.getPassword().equals(uPD.getMatchingPassword());
+        return uPD.getPassword().equals(uPD.getNewPassword());
     }
 
 }

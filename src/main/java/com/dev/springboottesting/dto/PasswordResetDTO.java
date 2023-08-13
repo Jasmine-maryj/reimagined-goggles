@@ -3,8 +3,10 @@ package com.dev.springboottesting.dto;
 import com.dev.springboottesting.validate.FieldMatch;
 import com.dev.springboottesting.validate.ValidateEmail;
 import com.dev.springboottesting.validate.ValidatePassword;
+import jakarta.persistence.Entity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.context.annotation.ComponentScan;
 
 @FieldMatch(message = "Password must match!")
 @Data
