@@ -31,4 +31,14 @@ public interface UserService {
     Token findByToken(String oldToken);
 
     String resetPassword(PasswordResetDTO passwordResetDTO);
+
+    User findUserByEmail(String email);
+
+    String validateResetPasswordToken(String token);
+
+    User getUserByPasswordResetToken(String token);
+
+    void changePassword(User user, String newPassword);
+
+    User findUserByEmailAndPassword(String email, String oldPassword);
 }

@@ -1,5 +1,6 @@
 package com.dev.springboottesting.controller;
 
+import com.dev.springboottesting.dto.ChangePasswordDTO;
 import com.dev.springboottesting.dto.PasswordResetDTO;
 import com.dev.springboottesting.dto.UserDto;
 import com.dev.springboottesting.dto.UserLoginDto;
@@ -29,7 +30,7 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-    
+
     private Converter converter;
 
     @Autowired
@@ -70,12 +71,48 @@ public class UserController {
     }
 
     @PostMapping("/login/reset-password")
-    public ResponseEntity<Map<String, String>> resetPassword(@RequestBody @Valid PasswordResetDTO passwordResetDTO){
-        String result = userService.resetPassword(passwordResetDTO);
+    public ResponseEntity<Map<String, String>> resetPassword(@RequestBody @Valid PasswordResetDTO passwordResetDTO, HttpServletRequest request){
+        User user = userService.findUserByEmail(passwordResetDTO.getEmail());
+        String url = "";
         Map<String, String> map = new HashMap<>();
-        if(result.equalsIgnoreCase("success")){
-            map.put("message", "Password changed successfully!");
+        if(user != null){
+            Token token = new Token(user);
+            String passwordVerificationToken = token.getToken();
+            url = sendPasswordResetLinkToEmail(applicationUrl(request), passwordVerificationToken);
+
         }
+        map.put("message", "reset password link has been sent to your email");
+        return ResponseEntity.ok(map);
+    }
+
+    @GetMapping("/save-password")
+    public ResponseEntity<Map<String, String>> savePassword(@RequestParam("token") String token, HttpServletRequest request, @RequestBody PasswordResetDTO passwordResetDTO){
+        String result = userService.validateResetPasswordToken(token);
+        Map<String, String> map = new HashMap<>();
+
+
+        if(!result.equalsIgnoreCase("valid")){
+            map.put("message", result);
+            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+        }
+
+        User user = userService.getUserByPasswordResetToken(token);
+        if (user != null){
+            userService.changePassword(user, passwordResetDTO.getNewPassword());
+            map.put("message", "Password changed successfully");
+            return ResponseEntity.ok(map);
+        }
+
+        map.put("message", "Invalid Token");
+        return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<Map<String, String>> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO, HttpServletRequest request){
+        User user = userService.findUserByEmailAndPassword(changePasswordDTO.getEmail(), changePasswordDTO.getOldPassword());
+        userService.changePassword(user, changePasswordDTO.getNewPassword());
+        Map<String, String> map = new HashMap<>();
+        map.put("message", "Password Changed Successfully!");
         return ResponseEntity.ok(map);
     }
 
@@ -142,5 +179,10 @@ public class UserController {
     }
 
 
+    private String sendPasswordResetLinkToEmail(String applicationUrl, String passwordVerificationToken) {
+        String url = applicationUrl + "save-password/token?" + passwordVerificationToken;
+        log.info("Click below link to reset your password" + url);
+        return url;
+    }
 
 }

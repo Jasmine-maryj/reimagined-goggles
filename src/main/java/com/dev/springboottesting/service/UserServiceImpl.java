@@ -6,6 +6,7 @@ import com.dev.springboottesting.dto.UserDto;
 import com.dev.springboottesting.dto.UserLoginDto;
 import com.dev.springboottesting.entity.User;
 import com.dev.springboottesting.exceptionhandler.UserNotFoundException;
+import com.dev.springboottesting.repository.PasswordTokenRepository;
 import com.dev.springboottesting.repository.TokenRepository;
 import com.dev.springboottesting.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ public class UserServiceImpl implements UserService{
 
     @Autowired
     private TokenRepository tokenRepository;
+
+    @Autowired
+    private PasswordTokenRepository passwordTokenRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -138,5 +142,49 @@ public class UserServiceImpl implements UserService{
         user.setPassword(passwordEncoder.encode(passwordResetDTO.getPassword()));
         userRepository.save(user);
         return "success";
+    }
+
+    @Override
+    public User findUserByEmail(String email) {
+        return userRepository.findUserByEmail(email);
+    }
+
+    @Override
+    public String validateResetPasswordToken(String token) {
+        Token passwordResetToken = passwordTokenRepository.findByToken(token);
+
+        if(passwordResetToken == null){
+            return "Invalid Request";
+        }
+
+        Calendar calendar = Calendar.getInstance();
+        User user = passwordResetToken.getUser();
+
+        if((passwordResetToken.getExpirationTime().getTime() - calendar.getTime().getTime()) < 0){
+            return "Token Expired";
+        }
+
+        userRepository.save(user);
+        return "valid";
+    }
+
+    @Override
+    public User getUserByPasswordResetToken(String token) {
+        return passwordTokenRepository.findByToken(token).getUser();
+    }
+
+    @Override
+    public void changePassword(User user, String newPassword) {
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    @Override
+    public User findUserByEmailAndPassword(String email, String oldPassword) {
+        User user = userRepository.findByEmailAndPassword(email, oldPassword);
+        if(user == null){
+            throw new UserNotFoundException("Invalid email or password");
+        }
+        return user;
     }
 }
