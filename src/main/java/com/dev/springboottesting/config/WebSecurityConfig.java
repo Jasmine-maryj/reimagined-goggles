@@ -42,9 +42,7 @@ public class WebSecurityConfig {
                 .csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.disable())
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry.requestMatchers(WHITE_LISTED_URLS)
-                                .permitAll(),
-
-                                );
+                                .permitAll());
         return httpSecurity.build();
     }
 
